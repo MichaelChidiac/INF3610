@@ -1,0 +1,38 @@
+Release 13.2 - libgen Xilinx EDK 13.2 Build EDK_O.61xd
+ (nt64)
+Copyright (c) 1995-2011 Xilinx, Inc.  All rights reserved.
+
+Command Line: libgen -hw ../ucII-platform_hw_platform/system.xml -pe
+microblaze_0 -log libgen.log system.mss 
+
+WARNING:EDK - INFO:Security:50 - The XILINXD_LICENSE_FILE environment variable
+   is set to '2100@victoria.lerb.polymtl.ca'.
+   INFO:Security:52 - The LM_LICENSE_FILE environment variable is set to
+   '1717@victoria.lerb.polymtl.ca;1400@peel.grm.polymtl.ca;7790@peel.grm.polymtl
+   .ca;1717@peel.grm.polymtl.ca;1701@peel.grm.polymtl.ca;@peel.grm.polymtl.ca'.
+   INFO:Security:56 - Part 'xc5vlx50t' is not a WebPack part.
+   WARNING:Security:43 - No license file was found in the standard Xilinx
+   license directory.
+   WARNING:Security:44 - No license file was found.
+          Please run the Xilinx License Configuration Manager
+          (xlcm or "Manage Xilinx Licenses")
+          to assist in obtaining a license.
+   WARNING:Security:42 - Your software subscription period has lapsed. Your
+   current version of Xilinx tools will continue to function, but you no longer
+   qualify for Xilinx software updates or new releases.
+
+
+
+Staging source files.
+Running DRCs.
+uC/OS-II DRC ...
+Running generate.
+Running post_generate.
+Running include - 'make -s include "COMPILER=mb-gcc" "ARCHIVER=mb-ar"
+"COMPILER_FLAGS=-mno-xl-soft-mul -mxl-barrel-shift -mxl-pattern-compare
+-mcpu=v8.20.a  -O2 -c" "EXTRA_COMPILER_FLAGS=-g"'.
+
+Running libs - 'make -s libs "COMPILER=mb-gcc" "ARCHIVER=mb-ar"
+"COMPILER_FLAGS=-mno-xl-soft-mul -mxl-barrel-shift -mxl-pattern-compare
+-mcpu=v8.20.a  -O2 -c" "EXTRA_COMPILER_FLAGS=-g"'.
+Running execs_generate.

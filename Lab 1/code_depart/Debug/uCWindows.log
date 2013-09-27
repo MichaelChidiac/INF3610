@@ -1,0 +1,17 @@
+﻿La génération a démarré 2013-09-26 18:10:51.
+     1>Projet "\\vnode3.labos.polymtl.ca\usagers-vn3\m\michi\documents\INF3610\Lab 1\code_depart\uCWindows.vcxproj" sur le nœud 2 (build cible(s)).
+     1>InitializeBuildStatus:
+         Mise à jour de l'horodatage ".\Debug\uCWindows.unsuccessfulbuild".
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I./ /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _VC80_UPGRADE=0x0600 /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug\\" /Fd".\Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt tpPart2.c
+         tpPart2.c
+     1>\\vnode3.labos.polymtl.ca\usagers-vn3\m\michi\documents\inf3610\lab 1\code_depart\tppart2.c(116): warning C4026: fonction déclarée avec une liste de paramètres formels
+     1>\\vnode3.labos.polymtl.ca\usagers-vn3\m\michi\documents\inf3610\lab 1\code_depart\tppart2.c(136): warning C4026: fonction déclarée avec une liste de paramètres formels
+     1>\\vnode3.labos.polymtl.ca\usagers-vn3\m\michi\documents\inf3610\lab 1\code_depart\tppart2.c(162): warning C4026: fonction déclarée avec une liste de paramètres formels
+     1>\\vnode3.labos.polymtl.ca\usagers-vn3\m\michi\documents\inf3610\lab 1\code_depart\tppart2.c(193): warning C4026: fonction déclarée avec une liste de paramètres formels
+     1>\\vnode3.labos.polymtl.ca\usagers-vn3\m\michi\documents\inf3610\lab 1\code_depart\tppart2.c(211): error C2065: 'OS_TIMEOUT' : identificateur non déclaré
+     1>Génération du projet "\\vnode3.labos.polymtl.ca\usagers-vn3\m\michi\documents\INF3610\Lab 1\code_depart\uCWindows.vcxproj" terminée (build cible(s)) -- ÉCHEC.
+
+ÉCHEC de la build.
+
+Temps écoulé 00:00:02.34
