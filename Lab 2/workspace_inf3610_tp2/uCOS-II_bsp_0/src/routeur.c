@@ -89,6 +89,11 @@ typedef struct
 } PRINT_PARAM;
 
 OS_EVENT *ptrFifoIn;
+OS_EVENT *ptrHighIn;
+OS_EVENT *ptrMediumIn;
+OS_EVENT *ptrLowIn;
+OS_EVENT *ptrVerificationIn;
+XGpio instancePtrLED;
 
 /*
 *********************************************************************************************************
@@ -103,6 +108,7 @@ void             TaskForwarding(void *data);
 void             TaskPrint(void *data);
 void  			 TaskVerification (void *pdata)
 void             TaskStop(void *data);
+void			 PacketDelete(Packet *packet);
 
 /*
 *********************************************************************************************************
@@ -166,9 +172,8 @@ void  fitTimer2Handler (void* par) {
 */
 void initLED()
 {
-/*
-		À compléter
-*/  
+	XGpio_Initialize( &instancePtrLED, XPAR_LEDS_8BIT_DEVICE_ID);
+	XGpio_SetDataDirection(&instancePtrLED, 1,0x0);
 
 }
 
@@ -294,9 +299,46 @@ void  TaskComputing (void *pdata)
 	  if (err == OS_NO_ERR) {
 		  *xil_printf("\n--TaskComputing: Source reçu\n", ++nbPacketSourceRejete);
 		  packet = (Packet *) msg;
-		  if (packet->src > REJECT_LOW1 || packet->src > REJECT_HIGH4){
+		  if (packet->src => REJECT_LOW1 || packet->src <= REJECT_HIGH4){
 
 			  /*dautres trucs)*/
+			  unsigned int answer = computeCRC( packet->data, 4 );  //AUCUNE IDEE COMMENT CA FONCTIONNE
+			  if ( packet->crc != answer ){
+				  xil_printf("\n--TaskComputing: CRC invalide (Paquet rejete) (total : %d)\n", ++nbPacketCRCRejete);
+			  }
+			  else if( packet->type == 1 ){
+				  err = OSQPost(ptrHighIn, packet);
+				  if (err == OS_ERR_Q_FULL) {
+					  xil_printf("\n--TaskComputing: Fifo high pleine (Paquet rejete) (total : %d) !\n", ++nbPacketHighRejete);
+					  err = OSQPost(ptrVerificationIn, packet);
+					  if (err == OS_ERR_Q_FULL) {
+						  xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet efface) !\n");
+						  	 PacketDelete();
+					  }
+				  }
+			  }
+			  else if( packet->type == 2 ){
+				  err = OSQPost(ptrMediumIn, packet);
+				  if (err == OS_ERR_Q_FULL) {
+					  xil_printf("\n--TaskComputing: Fifo medium pleine (Paquet rejete) (total : %d) !\n", ++nbPacketMediumRejete);
+					  err = OSQPost(ptrVerificationIn, packet);
+					  if (err == OS_ERR_Q_FULL) {
+						  xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet efface) !\n");
+							 PacketDelete();
+					  }
+				  }
+			  }
+			  else if( packet->type == 3 ){
+				  err = OSQPost(ptrLowIn, packet);
+				  if (err == OS_ERR_Q_FULL) {
+					  xil_printf("\n--TaskComputing: Fifo low pleine (Paquet rejete) (total : %d) !\n", ++nbPacketLowRejete);
+					  err = OSQPost(ptrVerificationIn, packet);
+					  if (err == OS_ERR_Q_FULL) {
+						  xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet efface) !\n");
+							 PacketDelete();
+					  }
+				  }
+			  }
 
 		  }
 
@@ -372,3 +414,13 @@ void TaskPrint(void *data)
 
 }
 
+/*
+*********************************************************************************************************
+*                                              PacketDelete
+*********************************************************************************************************
+*/
+void PacketDelete(Packet *packet){
+
+	//A completer
+
+}

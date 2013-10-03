@@ -230,11 +230,14 @@ void  BSP_InitIntCtrl (void)
 #endif
 
 	/* Enable interrupts from the fit timer           */
-	
-	/*
-		À compléter
-	*/
- 
+#if 1
+    PLB_MINES_EnableInterrupt((void*)XPAR_ROUTEUR_0_BASEADDR);
+	//Connect interrupt form plb_mines with its handler
+    init_status = XIntc_Connect(&int_ctl, XPAR_XPS_INTC_0_ROUTEUR_0_IP2INTC_IRPT_INTR,Interrupt_Handler,(void *)0);
+	//Enable interrupt from plb_mines in the interrupt controller
+    XIntc_Enable(&int_ctl, XPAR_XPS_INTC_0_ROUTEUR_0_IP2INTC_IRPT_INTR);
+
+#endif
 													/* Start the interrupt controller                   */
     init_status = XIntc_Start(&int_ctl, XIN_REAL_MODE);
 }
