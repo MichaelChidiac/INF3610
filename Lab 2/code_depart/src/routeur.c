@@ -32,7 +32,9 @@
 #define          TASK_PRINT4_ID  	6
 
 
-															// Task Prio
+#define MUTEX_SOURCE_REJETE_PRIO		9					// Task Prio
+#define MUTEX_BAD_CRC_PRIO				10
+#define MUTEX_PAQUET_REJETE_PRIO		11
 /*
 		À compléter
 */
@@ -55,6 +57,20 @@
 #define REJECT_LOW4  0xD0000000
 #define REJECT_HIGH4 0xD00FFFFF
 
+#define INTERFACE_LOW1		0
+#define INTERFACE_HIGH1		1073741823	
+#define INTERFACE_LOW2		1073741824
+#define INTERFACE_HIGH2		2147483647
+#define INTERFACE_LOW3		2147483648
+#define INTERFACE_HIGH3		3221225472
+#define INTERFACE_LOW4		3221225473
+#define INTERFACE_HIGH4		4294967295
+
+#define FIFO_IN_NUM_MSG 	16
+#define FIFO_QOS_NUM_MSG 	4
+
+#define BAD_CRC 1234
+
 typedef struct {
 	unsigned int src;
 	unsigned int dst;
@@ -62,6 +78,12 @@ typedef struct {
     unsigned int crc;
  	unsigned int data[12];
 }Packet;
+
+typedef enum {
+	High 	= 0,
+	Medium 	= 1,
+	Low 	= 2
+} Priority;
 
 /*
 *********************************************************************************************************
@@ -88,6 +110,18 @@ typedef struct
   OS_EVENT *Mbox;
 } PRINT_PARAM;
 
+
+OS_EVENT *ptrFifoIn;
+void *FifoInMsgTbl[FIFO_IN_NUM_MSG];
+
+OS_EVENT *ptrFifoVideo, *ptrFifoAudio, *ptrFifoOtherwise, ptrFifoAuxilary;
+void *FifoInMsgTbl[FIFO_IN_NUM_MSG];
+void *FifoVideoMsgTbl[FIFO_QOS_NUM_MSG];
+void *FifoAudioMsgTbl[FIFO_QOS_NUM_MSG];
+void *FifoOtherwiseMsgTbl[FIFO_QOS_NUM_MSG];
+void *FifoAuxilaryMsgTbl[FIFO_QOS_NUM_MSG];
+
+OS_EVENT *MutexSourceRejete, * MutexBadCrc, *MutexPacketRejete;
 /*
 *********************************************************************************************************
 *                                         FUNCTION PROTOTYPES
@@ -114,8 +148,21 @@ int main (void)
 /*
 		À compléter
 */
+	INT8U err;
 	BSP_IntDisAll();
 	
+	OSInit();
+	
+	ptrFifoIn 			= OSQCreate((Packet*)FifoInMsgTbl, 			FIFO_IN_NUM_MSG);
+	
+	ptrFifoVideo 		= OSQCreate((Packet*)FifoVideoMsgTbl, 		FIFO_QOS_NUM_MSG);
+	ptrFifoAudio 		= OSQCreate((Packet*)FifoAudioMsgTbl, 		FIFO_QOS_NUM_MSG);
+	ptrFifoOtherwise 	= OSQCreate((Packet*)FifoOtherwiseMsgTbl, 	FIFO_QOS_NUM_MSG);
+	ptrFifoAuxilary 	= OSQCreate((Packet*)FifoAuxilaryMsgTbl, 	FIFO_QOS_NUM_MSG);
+	
+	MutexSourceRejete 	= OSMutexCreate(MUTEX_SOURCE_REJETE_PRIO, &err);
+	MutexBadCrc 		= OSMutexCreate(MUTEX_BAD_CRC_PRIO, &err);
+	MutexPacketRejete 	= OSMutexCreate(MUTEX_PAQUET_REJETE_PRIO, &err);
 /*
 		À compléter
 */
@@ -126,6 +173,8 @@ int main (void)
 		À compléter
 */  
 
+	OSStart();
+	
     return 1;
 }
 
@@ -285,10 +334,88 @@ void  TaskComputing (void *pdata)
   INT8U err;
   void* msg;
   Packet *packet;
+  bool bRejectInterval, bRejectInterval1, bRejectInterval2, bRejectInterval3, bRejectInterval4;
   
-/*
-		À compléter
-*/  
+  for(;;) 
+  {
+	  msg = OSQPend(ptrFifoIn, 0, &err);
+	  packet = (Packet *)msg;
+	  
+	  /* rejeter les paquets qui ne sont pas dans son espace d’adressage */
+	  bRejectInterval1 	= packet->src > REJECT_LOW1 && msg < REJECT_HIGH1;
+	  bRejectInterval2 	= packet->src > REJECT_LOW2 && msg < REJECT_HIGH2;
+	  bRejectInterval3 	= packet->src > REJECT_LOW3 && msg < REJECT_HIGH3;
+	  bRejectInterval4 	= packet->src > REJECT_LOW4 && msg < REJECT_HIGH4;
+	  
+	  bRejectInterval 	= bRejectInterval1 || bRejectInterval2 || bRejectInterval3 || bRejectInterval4;
+	  
+	  /* tous les paquets ayant une adresse source contenue entre REJECT_LOW et REJECT_HIGH de chaque plage pour les interfaces devront être rejetés */
+	  if(bRejectInterval)
+	  {
+		OSMutexPend(MutexSourceRejete,0, &err);
+		xil_printf("\n--TaskComputing: Source invalide (Paquet rejete) (total : %d)\n\n", ++nbPacketSourceRejete);
+		delete packet; packet = 0;
+		OSMutexPost(MutexSourceRejete);
+	  }
+	  else 
+	  {
+		/* Les paquets contenant des erreurs sont simplement rejetés*/
+		if(packet->crc == BAD_CRC)
+		{
+			OSMutexPend(MutexBadCrc,0, &err);
+			xil_printf("\n--TaskComputing: CRC invalide (Paquet rejete) (total : %d)\n", ++nbPacketCRCRejete);
+			delete packet; packet = 0;
+			OSMutexPost(MutexBadCrc);
+		}
+		else 
+		{
+			switch(packet->type)
+			{
+				case High:
+					err = OSQPost(ptrFifoVideo, packet);
+					if (err == OS_ERR_Q_FULL) {
+						err = OSQPost(ptrFifoAuxilary, packet);
+						if (err == OS_ERR_Q_FULL) {
+							OSMutexPend(MutexPacketRejete,0, &err);
+							xil_printf("\n--TaskComputing: Fifo high pleine (Paquet rejete) (total : %d) !\n", ++nbPacketHighRejete);
+							delete packet; packet = 0;
+							OSMutexPost(MutexPacketRejete);
+						}
+					}
+					break;
+					
+				case Medium:
+					err = OSQPost(ptrFifoAudio, packet);
+					if (err == OS_ERR_Q_FULL) {
+						err = OSQPost(ptrFifoAuxilary, packet);
+						if (err == OS_ERR_Q_FULL) {
+							OSMutexPend(MutexPacketRejete,0, &err);
+							xil_printf("\n--TaskComputing: Fifo medium pleine (Paquet rejete) (total : %d) !\n", ++nbPacketMediumRejete);
+							delete packet; packet = 0;
+							OSMutexPost(MutexPacketRejete);
+						}
+					}
+					break;
+					
+				case Low:
+					err = OSQPost(ptrFifoOtherwise, packet);
+					if (err == OS_ERR_Q_FULL) {
+						err = OSQPost(ptrFifoAuxilary, packet);
+						if (err == OS_ERR_Q_FULL) {
+							OSMutexPend(MutexPacketRejete,0, &err);
+							xil_printf("\n--TaskComputing: Fifo low pleine (Paquet rejete) (total : %d) !\n", ++nbPacketLowRejete);
+							delete packet; packet = 0;
+							OSMutexPost(MutexPacketRejete);
+						}
+					}
+					break;
+					
+				default:
+					break;
+			}
+		}
+	  }
+  }
 }
 
 /*
@@ -303,11 +430,32 @@ void  TaskForwarding (void *pdata)
   INT8U err;
   void* msg;
   Packet *packet;
+  bool bIntervalValid, bIntervalValid1, bIntervalValid2, bIntervalValid3, bIntervalValid4;
   
-/*
-		À compléter
-*/ 
+  for(;;)
+  {
+	if((msg = OSQAccept(ptrFifoVideo, &err))) {}
+	else if((msg = OSQAccept(ptrFifoAudio, &err))) {}
+	else if((msg = OSQAccept(ptrFifoOtherwise, &err))) {}
 
+	if(packet = (Packet *)msg)
+	{
+		bRejectInterval1 	= packet->src > INTERFACE_LOW1 && msg < INTERFACE_HIGH1;
+		bRejectInterval2 	= packet->src > INTERFACE_LOW2 && msg < INTERFACE_HIGH1;
+		bRejectInterval3 	= packet->src > INTERFACE_LOW3 && msg < INTERFACE_HIGH1;
+		bRejectInterval4 	= packet->src > INTERFACE_LOW4 && msg < INTERFACE_HIGH1;
+		
+		/* simulation de la table de routage */
+		OSTimeDly(OS_TICKS_PER_SEC); 
+		
+		bIntervalValid = bRejectInterval1 || bRejectInterval2 || bRejectInterval3 || bRejectInterval4;
+		
+		if(bIntervalValid)
+		{
+			
+		}
+	}
+  }
 }
 
 /*
