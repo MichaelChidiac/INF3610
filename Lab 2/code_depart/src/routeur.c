@@ -71,6 +71,10 @@
 
 #define BAD_CRC 1234
 
+#define High 	0
+#define	Medium 	1
+#define	Low 	2
+
 typedef struct {
 	unsigned int src;
 	unsigned int dst;
@@ -79,11 +83,6 @@ typedef struct {
  	unsigned int data[12];
 }Packet;
 
-typedef enum {
-	High 	= 0,
-	Medium 	= 1,
-	Low 	= 2
-} Priority;
 
 /*
 *********************************************************************************************************
@@ -121,7 +120,9 @@ void *FifoAudioMsgTbl[FIFO_QOS_NUM_MSG];
 void *FifoOtherwiseMsgTbl[FIFO_QOS_NUM_MSG];
 void *FifoAuxilaryMsgTbl[FIFO_QOS_NUM_MSG];
 
+OS_EVENT *SemStop, SemVerification;
 OS_EVENT *MutexSourceRejete, * MutexBadCrc, *MutexPacketRejete;
+OS_EVENT *PacketMbox;
 /*
 *********************************************************************************************************
 *                                         FUNCTION PROTOTYPES
@@ -151,14 +152,20 @@ int main (void)
 	INT8U err;
 	BSP_IntDisAll();
 	
-	OSInit();
+	OSInit(); /* Initialize µC/OS-II */
 	
+	/* Create Semaphore */ 
+	SemStop 		= OSSemCreate(0);
+	SemVerification = OSSemCreate(0); 
+
 	ptrFifoIn 			= OSQCreate((Packet*)FifoInMsgTbl, 			FIFO_IN_NUM_MSG);
 	
 	ptrFifoVideo 		= OSQCreate((Packet*)FifoVideoMsgTbl, 		FIFO_QOS_NUM_MSG);
 	ptrFifoAudio 		= OSQCreate((Packet*)FifoAudioMsgTbl, 		FIFO_QOS_NUM_MSG);
 	ptrFifoOtherwise 	= OSQCreate((Packet*)FifoOtherwiseMsgTbl, 	FIFO_QOS_NUM_MSG);
 	ptrFifoAuxilary 	= OSQCreate((Packet*)FifoAuxilaryMsgTbl, 	FIFO_QOS_NUM_MSG);
+	
+	PacketMbox = OSMboxCreate((void *)0); /* Create mailbox */
 	
 	MutexSourceRejete 	= OSMutexCreate(MUTEX_SOURCE_REJETE_PRIO, &err);
 	MutexBadCrc 		= OSMutexCreate(MUTEX_BAD_CRC_PRIO, &err);
@@ -173,7 +180,7 @@ int main (void)
 		À compléter
 */  
 
-	OSStart();
+	OSStart(); /* Start Multitasking */ 
 	
     return 1;
 }
@@ -259,10 +266,15 @@ unsigned int computeCRC( INT16U* w, int nleft)
 void  TaskStop (void *data)
 {
 	INT8U err;
-/*
-		À compléter
-*/  
-
+	
+	OSSemPend(SemStop, 0, &err);
+	xil_printf("ERREUR : Trop de CRC invalide !\n");
+	
+	OSTaskDelReq(TASK_BIDON_PRIO); /* TaskInjectPacket */
+	OSTaskDelReq(TASK_BIDON_PRIO); /* TaskComputing */
+	OSTaskDelReq(TASK_BIDON_PRIO); /* TaskForwarding */
+	OSTaskDelReq(TASK_BIDON_PRIO); /* TaskPrint */
+	OSTaskDelReq(TASK_BIDON_PRIO); /* TaskVerification */
 }
 /*
 *********************************************************************************************************
@@ -473,9 +485,59 @@ void  TaskVerification (void *pdata)
 	  void* msg;
 	  Packet *packet;
 	  
-	/*
-			À compléter
-	*/ 
+	  data = data;
+	  
+	  for(;;)
+	  {
+		OSPend(SemVerification, 0, &err); /* s’exécutera périodiquement à toutes les cinq secondes grâce à une synchronisation avec l’interruption du deuxième fit_timer. */
+		msg = OSQPend(ptrFifoAuxilary, 0, &err);
+		packet = (Packet *)msg;
+		switch(packet->type)
+		{
+			case High:
+			err = OSQPost(ptrFifoVideo, packet);
+			if (err == OS_ERR_Q_FULL)
+			{
+				OSMutexPend(MutexPacketRejete,0, &err);
+				xil_printf("\n--TaskComputing: Fifo high pleine (Paquet rejete) (total : %d) !\n", ++nbPacketHighRejete);
+				delete packet; packet = 0;
+				OSMutexPost(MutexPacketRejete);
+			}
+			break;
+					
+			case Medium:
+			err = OSQPost(ptrFifoAudio, packet);
+			if (err == OS_ERR_Q_FULL)
+			{
+				OSMutexPend(MutexPacketRejete, 0, &err);
+				xil_printf("\n--TaskComputing: Fifo medium pleine (Paquet rejete) (total : %d) !\n", ++nbPacketMediumRejete);
+				delete packet; packet = 0;
+				OSMutexPost(MutexPacketRejete);
+			}
+			break;
+					
+			case Low:
+			err = OSQPost(ptrFifoOtherwise, packet);
+			if (err == OS_ERR_Q_FULL)
+			{
+				OSMutexPend(MutexPacketRejete,0, &err);
+				xil_printf("\n--TaskComputing: Fifo low pleine (Paquet rejete) (total : %d) !\n", ++nbPacketLowRejete);
+				delete packet; packet = 0;
+				OSMutexPost(MutexPacketRejete);
+			}
+			break;
+					
+			default:
+				break;
+		}
+			
+		if (err == OS_NO_ERR) 
+		{
+			xil_printf("\n********Remise du Paquet # %d ******** \n", ++i);
+			xil_printf("	** src : 0x%8x \n", packet->src);
+			xil_printf("	** dst : 0x%8x \n", packet->dst);
+		}
+	  }
 }
 
 
@@ -490,17 +552,18 @@ void TaskPrint(void *data)
   void* msg;
   Packet *packet;
 
-/*
-		À compléter
-*/ 
- 
-        	xil_printf("\nPaquet recu en %d \n", intID);
-        	xil_printf("	>> src : 0x%8x \n", packet->src);
-        	xil_printf("	>> dst : 0x%8x \n", packet->dst);
-        	xil_printf("	>> type : %d \n", packet->type);
-/*
-		À compléter
-*/ 
-
+  data = data;
+  
+  for (;;)
+  { 
+	msg = OSMboxPend(PacketMbox, 0, &err); /* Check mailbox for a message */
+	if (msg != (void *)0) { /* Message received, process */
+		packet = (Packet *)msg;
+		xil_printf("\nPaquet recu en %d \n", intID);
+        xil_printf("	>> src : 0x%8x \n", packet->src);
+        xil_printf("	>> dst : 0x%8x \n", packet->dst);
+        xil_printf("	>> type : %d \n", packet->type);
+	}
+	}    	
 }
 
