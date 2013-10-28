@@ -1,7 +1,0 @@
-INFILE=Z:\code_depart\ucII-platform\implementation\system.ncd
-OUTFILE=Z:\code_depart\ucII-platform\implementation\system.bit
-FAMILY=Virtex5
-PART=xc5vlx50t-1ff1136
-WORKINGDIR=Z:\code_depart\ucII-platform\implementation
-LICENSE=ISE
-USER_INFO=174126023_174126024_207295007_909
