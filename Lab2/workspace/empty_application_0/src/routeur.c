@@ -32,17 +32,17 @@
 #define TASK_VERIFICATION_ID 	5
 
 // Application tasks priorities
-#define TASK_STOP_PRIO 			0
-#define TASK_PRINT_PRIO 		1
-#define TASK_INJECTPACKET_PRIO 	2
-#define TASK_COMPUTING_PRIO 	3
-#define TASK_FOWARDING_PRIO 	4
-#define TASK_VERIFICATION_PRIO 	5
+#define TASK_STOP_PRIO 			10
+#define TASK_PRINT_PRIO 		11
+#define TASK_INJECTPACKET_PRIO 	12
+#define TASK_COMPUTING_PRIO 	13
+#define TASK_FOWARDING_PRIO 	14
+#define TASK_VERIFICATION_PRIO 	15
 
-#define MUTEX_SOURCE_REJETE_PRIO		9
-#define MUTEX_BAD_CRC_PRIO				10
-#define MUTEX_PAQUET_REJETE_PRIO		11
-#define MUTEX_NB_PACKET_PRIO			12
+// Application mutexs priorities
+#define MUTEX_SOURCE_REJETE_PRIO		0
+#define MUTEX_PAQUET_REJETE_PRIO		1
+#define MUTEX_NB_PACKET_PRIO			2
 
 // Routing info.
 #define INT4_LOW  0				/* 0x00000000 */
@@ -88,7 +88,7 @@ typedef struct {
 */
 
 /* Declare global variables */
-static XGpio LEDS;
+static XGpio instancePtrLED;
 static const int LEDMask = 0xff;
 
 OS_STK TaskStopStk[TASK_STK_SIZE];
@@ -112,6 +112,8 @@ typedef struct
   OS_EVENT *Mbox;
 } PRINT_PARAM;
 
+PRINT_PARAM printRequest;
+
 typedef enum { false, true } bool;
 
 OS_EVENT *ptrFifoIn;
@@ -124,9 +126,9 @@ void *FifoAudioMsgTbl[FIFO_QOS_NUM_MSG];
 void *FifoOtherwiseMsgTbl[FIFO_QOS_NUM_MSG];
 void *FifoAuxilaryMsgTbl[FIFO_QOS_NUM_MSG];
 
-OS_EVENT *SemStop, *SemVerification;
-OS_EVENT *MutexSourceRejete, *MutexBadCrc, *MutexPacketRejete, *MutexNbPacket;
-OS_EVENT *PacketMbox, *Int1Mbox, *Int2Mbox, *Int3Mbox, *Int4Mbox;
+OS_EVENT *SemStop, *SemPrint, *SemVerification;
+OS_EVENT *MutexSourceRejete, *MutexPacketRejete, *MutexNbPacket;
+OS_EVENT *Int1Mbox, *Int2Mbox, *Int3Mbox, *Int4Mbox;
 
 /*
 *********************************************************************************************************
@@ -160,6 +162,7 @@ int main (void)
     BSP_InitIO();
 	
     /* Create Semaphore */
+	SemPrint		= OSSemCreate(0);
     SemStop 		= OSSemCreate(0);
     SemVerification = OSSemCreate(0);
 
@@ -173,7 +176,6 @@ int main (void)
     ptrFifoAuxilary 	= OSQCreate(&FifoAuxilaryMsgTbl[0], 	FIFO_QOS_NUM_MSG);
 
     /* Create mailbox */
-    PacketMbox 	= OSMboxCreate((void *)0);
     Int1Mbox 	= OSMboxCreate((void *)0);
     Int2Mbox 	= OSMboxCreate((void *)0);
     Int3Mbox 	= OSMboxCreate((void *)0);
@@ -181,7 +183,6 @@ int main (void)
 
     /* Create Mutex */
     MutexSourceRejete 	= OSMutexCreate(MUTEX_SOURCE_REJETE_PRIO, &err);
-    MutexBadCrc 		= OSMutexCreate(MUTEX_BAD_CRC_PRIO, &err);
     MutexPacketRejete 	= OSMutexCreate(MUTEX_PAQUET_REJETE_PRIO, &err);
     MutexNbPacket		= OSMutexCreate(MUTEX_NB_PACKET_PRIO, &err);
 
@@ -244,8 +245,8 @@ void fitTimer2Handler (void* par)
 void initLED()
 {
 	/* Initialize LEDs on the board. */
-	XGpio_Initialize(&LEDS, XPAR_LEDS_8BIT_DEVICE_ID);
-	XGpio_SetDataDirection(&LEDS, CHANNEL1, 0x00); /* set Leds as output ports */
+	XGpio_Initialize(&instancePtrLED, XPAR_LEDS_8BIT_DEVICE_ID);
+	XGpio_SetDataDirection(&instancePtrLED, CHANNEL1, 0x00); /* set Leds as output ports */
 }
 
 /*
@@ -368,6 +369,7 @@ void TaskComputing (void *pdata)
 	void* msg;
 	Packet *packet;
 	bool bRejectInterval, bRejectInterval1, bRejectInterval2, bRejectInterval3, bRejectInterval4;
+	unsigned int crc;
 
 	for(;;)
 	{
@@ -393,7 +395,8 @@ void TaskComputing (void *pdata)
 		else
 		{
 			/* Les paquets contenant des erreurs sont simplement rejetés*/
-			if(packet->crc == 1234)
+			crc = computeCRC((INT16U*)(packet), 64);
+			if(packet->crc != crc)
 			{
 				OS_ENTER_CRITICAL();
 				xil_printf("\n--TaskComputing: CRC invalide (Paquet rejete) (total : %d)\n", ++nbPacketCRCRejete);
@@ -411,11 +414,12 @@ void TaskComputing (void *pdata)
 					err = OSQPost(ptrFifoVideo, packet);
 					if (err == OS_ERR_Q_FULL)
 					{
+						xil_printf("\n--TaskComputing: Fifo high pleine !\n");
 						err = OSQPost(ptrFifoAuxilary, packet);
 						if (err == OS_ERR_Q_FULL)
 						{
 							OSMutexPend(MutexPacketRejete,0, &err);
-							xil_printf("\n--TaskComputing: Fifo high pleine (Paquet rejete) (total : %d) !\n", ++nbPacketHighRejete);
+							xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet high efface (total : %d)) !\n", ++nbPacketHighRejete);
 							free(packet); packet = 0;
 							OSMutexPost(MutexPacketRejete);
 						}
@@ -426,11 +430,12 @@ void TaskComputing (void *pdata)
 					err = OSQPost(ptrFifoAudio, packet);
 					if (err == OS_ERR_Q_FULL)
 					{
+						xil_printf("\n--TaskComputing: Fifo medium pleine !\n", ++nbPacketMediumRejete);
 						err = OSQPost(ptrFifoAuxilary, packet);
 						if (err == OS_ERR_Q_FULL)
 						{
+							xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet medium efface (total : %d)) !\n", ++nbPacketMediumRejete);
 							OSMutexPend(MutexPacketRejete,0, &err);
-							xil_printf("\n--TaskComputing: Fifo medium pleine (Paquet rejete) (total : %d) !\n", ++nbPacketMediumRejete);
 							free(packet); packet = 0;
 							OSMutexPost(MutexPacketRejete);
 						}
@@ -441,11 +446,12 @@ void TaskComputing (void *pdata)
 					err = OSQPost(ptrFifoOtherwise, packet);
 					if (err == OS_ERR_Q_FULL)
 					{
+						xil_printf("\n--TaskComputing: Fifo low pleine !\n");
 						err = OSQPost(ptrFifoAuxilary, packet);
 						if (err == OS_ERR_Q_FULL)
 						{
 							OSMutexPend(MutexPacketRejete,0, &err);
-							xil_printf("\n--TaskComputing: Fifo low pleine (Paquet rejete) (total : %d) !\n", ++nbPacketLowRejete);
+							xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet low efface (total : %d)) !\n", ++nbPacketLowRejete);
 							free(packet); packet = 0;
 							OSMutexPost(MutexPacketRejete);
 						}
@@ -524,7 +530,8 @@ void TaskForwarding (void *pdata)
 				  printRequest.interfaceID = 4;
 				  printRequest.Mbox = Int4Mbox;
 			  }
-			  err = OSMboxPost(PacketMbox, &printRequest);
+			  err = OSMboxPost(printRequest.Mbox, packet);
+			  OSSemPost(SemPrint);
 			  /* la communication via la tâche forwarding et l’interface se fera par un mailbox*/
 			  if(err == OS_FALSE)
 			  {
@@ -534,13 +541,11 @@ void TaskForwarding (void *pdata)
 			  else
 			  {
 				  /* tâche forwarding met à jour une variable globale du nom de nbPacket indiquant le nombre total de paquets traités et écrire sur les DELs la valeur du nbPacket */
-				  err = OSMboxPost(printRequest.Mbox, packet);
 				  OSMutexPend(MutexNbPacket,0, &err);
 				  xil_printf("\n--TaskForwarding: %d paquets envoyes\n\n", ++nbPacket);
 				  LEDValue = LEDMask & nbPacket;
 				  OSMutexPost(MutexNbPacket);
-				  XGpio_DiscreteWrite(&LEDS, CHANNEL1, LEDValue);
-
+				  XGpio_DiscreteWrite(&instancePtrLED, CHANNEL1, LEDValue);
 			  }
 		  }
 	  }
@@ -630,19 +635,17 @@ void TaskPrint(void *data)
 	INT8U err;
 	void* msg;
 	Packet *packet;
-	PRINT_PARAM *printRequest;
 	unsigned int interfaceID;
 
 	data = data;
 
 	for (;;)
 	{
-		msg = OSMboxPend(PacketMbox, 0, &err);
+		OSSemPend(SemPrint, 0, &err);
+		msg = OSMboxPend(printRequest.Mbox, 0, &err);
 		if(msg != (void *)0)
 		{
-			printRequest = (PRINT_PARAM*)msg;
-			interfaceID = printRequest->interfaceID;
-			msg = OSMboxPend(printRequest->Mbox, 0, &err);
+			interfaceID = printRequest.interfaceID;
 			packet = (Packet*)msg;;
 			xil_printf("\nPaquet recu en %d \n", interfaceID);
 			xil_printf("	>> src : 0x%8x \n", packet->src);
@@ -653,6 +656,12 @@ void TaskPrint(void *data)
 	}
 }
 
+
+/*
+*********************************************************************************************************
+*                                              _CreateTask
+*********************************************************************************************************
+*/
 void _CreateTask()
 {
 	OSTaskCreateExt(
@@ -728,13 +737,19 @@ void _CreateTask()
 			);
 }
 
+
+/*
+*********************************************************************************************************
+*                                              _DeleteTask()
+*********************************************************************************************************
+*/
 void _DeleteTask()
 {
 	INT8U err;
-	err = OSTaskDelReq(TASK_STOP_PRIO);
-	err = OSTaskDelReq(TASK_INJECTPACKET_PRIO);
-	err = OSTaskDelReq(TASK_PRINT_PRIO);
-	err = OSTaskDelReq(TASK_COMPUTING_PRIO);
-	err = OSTaskDelReq(TASK_FOWARDING_PRIO);
-	err = OSTaskDelReq(TASK_VERIFICATION_PRIO);
+	err = OSTaskDel(TASK_STOP_PRIO);
+	err = OSTaskDel(TASK_INJECTPACKET_PRIO);
+	err = OSTaskDel(TASK_PRINT_PRIO);
+	err = OSTaskDel(TASK_COMPUTING_PRIO);
+	err = OSTaskDel(TASK_FOWARDING_PRIO);
+	err = OSTaskDel(TASK_VERIFICATION_PRIO);
 }
