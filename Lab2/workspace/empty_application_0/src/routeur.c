@@ -39,11 +39,6 @@
 #define TASK_FOWARDING_PRIO 	14
 #define TASK_VERIFICATION_PRIO 	15
 
-// Application mutexs priorities
-#define MUTEX_SOURCE_REJETE_PRIO		0
-#define MUTEX_PAQUET_REJETE_PRIO		1
-#define MUTEX_NB_PACKET_PRIO			2
-
 // Routing info.
 #define INT4_LOW  0				/* 0x00000000 */
 #define INT4_HIGH 0x3fffffff 	/* 1073741823 */
@@ -127,7 +122,6 @@ void *FifoOtherwiseMsgTbl[FIFO_QOS_NUM_MSG];
 void *FifoAuxilaryMsgTbl[FIFO_QOS_NUM_MSG];
 
 OS_EVENT *SemStop, *SemPrint, *SemVerification;
-OS_EVENT *MutexSourceRejete, *MutexPacketRejete, *MutexNbPacket;
 OS_EVENT *Int1Mbox, *Int2Mbox, *Int3Mbox, *Int4Mbox;
 
 /*
@@ -153,8 +147,6 @@ void _DeleteTask();
 */
 int main (void)
 {
-	INT8U err;
-
 	 /* Initialize µC/OS-II */
 	OSInit();
 
@@ -180,11 +172,6 @@ int main (void)
     Int2Mbox 	= OSMboxCreate((void *)0);
     Int3Mbox 	= OSMboxCreate((void *)0);
     Int4Mbox 	= OSMboxCreate((void *)0);
-
-    /* Create Mutex */
-    MutexSourceRejete 	= OSMutexCreate(MUTEX_SOURCE_REJETE_PRIO, &err);
-    MutexPacketRejete 	= OSMutexCreate(MUTEX_PAQUET_REJETE_PRIO, &err);
-    MutexNbPacket		= OSMutexCreate(MUTEX_NB_PACKET_PRIO, &err);
 
     _CreateTask();
 
@@ -288,9 +275,6 @@ unsigned int computeCRC( INT16U* w, int nleft)
 */
 void TaskStop (void *data)
 {
-#if OS_CRITICAL_METHOD == 3
-	OS_CPU_SR cpu_sr = 0;
-#endif
 	INT8U err;
 	OSSemPend(SemStop, 0, &err);
 	xil_printf("ERREUR : Trop de CRC invalide ! Le routeur va s'arreter!\n");
@@ -391,9 +375,7 @@ void TaskComputing (void *pdata)
 		/* tous les paquets ayant une adresse source contenue entre REJECT_LOW et REJECT_HIGH de chaque plage pour les interfaces devront être rejetés */
 		if(bRejectInterval)
 		{
-			OSMutexPend(MutexSourceRejete,0, &err);
 			xil_printf("\n--TaskComputing: Source invalide (Paquet rejete) (total : %d)\n\n", ++nbPacketSourceRejete);
-			OSMutexPost(MutexSourceRejete);
 			free(packet); packet = 0;
 		}
 		else
@@ -424,10 +406,8 @@ void TaskComputing (void *pdata)
 						err = OSQPost(ptrFifoAuxilary, packet);
 						if (err == OS_ERR_Q_FULL)
 						{
-							OSMutexPend(MutexPacketRejete,0, &err);
 							xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet high efface (total : %d)) !\n", ++nbPacketHighRejete);
 							free(packet); packet = 0;
-							OSMutexPost(MutexPacketRejete);
 						}
 					}
 					break;
@@ -441,9 +421,7 @@ void TaskComputing (void *pdata)
 						if (err == OS_ERR_Q_FULL)
 						{
 							xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet medium efface (total : %d)) !\n", ++nbPacketMediumRejete);
-							OSMutexPend(MutexPacketRejete,0, &err);
 							free(packet); packet = 0;
-							OSMutexPost(MutexPacketRejete);
 						}
 					}
 					break;
@@ -456,10 +434,8 @@ void TaskComputing (void *pdata)
 						err = OSQPost(ptrFifoAuxilary, packet);
 						if (err == OS_ERR_Q_FULL)
 						{
-							OSMutexPend(MutexPacketRejete,0, &err);
 							xil_printf("\n--TaskComputing: Fifo verification pleine (Paquet low efface (total : %d)) !\n", ++nbPacketLowRejete);
 							free(packet); packet = 0;
-							OSMutexPost(MutexPacketRejete);
 						}
 					}
 					break;
@@ -547,10 +523,8 @@ void TaskForwarding (void *pdata)
 			  else
 			  {
 				  /* tâche forwarding met à jour une variable globale du nom de nbPacket indiquant le nombre total de paquets traités et écrire sur les DELs la valeur du nbPacket */
-				  OSMutexPend(MutexNbPacket,0, &err);
 				  xil_printf("\n--TaskForwarding: %d paquets envoyes\n\n", ++nbPacket);
 				  LEDValue = LEDMask & nbPacket;
-				  OSMutexPost(MutexNbPacket);
 				  XGpio_DiscreteWrite(&instancePtrLED, CHANNEL1, LEDValue);
 			  }
 		  }
@@ -588,9 +562,7 @@ void TaskVerification (void *pdata)
 			err = OSQPost(ptrFifoVideo, packet);
 			if (err == OS_ERR_Q_FULL)
 			{
-				OSMutexPend(MutexPacketRejete,0, &err);
 				xil_printf("\n--TaskVerification: Fifo high pleine (Paquet rejete) (total : %d) !\n", ++nbPacketHighRejete);
-				OSMutexPost(MutexPacketRejete);
 				free(packet); packet = 0;
 			}
 			break;
@@ -599,9 +571,7 @@ void TaskVerification (void *pdata)
 			err = OSQPost(ptrFifoAudio, packet);
 			if (err == OS_ERR_Q_FULL)
 			{
-				OSMutexPend(MutexPacketRejete, 0, &err);
 				xil_printf("\n--TaskVerification: Fifo medium pleine (Paquet rejete) (total : %d) !\n", ++nbPacketMediumRejete);
-				OSMutexPost(MutexPacketRejete);
 				free(packet); packet = 0;
 			}
 			break;
@@ -610,9 +580,7 @@ void TaskVerification (void *pdata)
 			err = OSQPost(ptrFifoOtherwise, packet);
 			if (err == OS_ERR_Q_FULL)
 			{
-				OSMutexPend(MutexPacketRejete,0, &err);
 				xil_printf("\n--TaskVerification: Fifo low pleine (Paquet rejete) (total : %d) !\n", ++nbPacketLowRejete);
-				OSMutexPost(MutexPacketRejete);
 				free(packet); packet = 0;
 			}
 			break;
