@@ -213,7 +213,7 @@ void fitTimerHandler (void* par)
 	if(nbPacketCRCRejete >= 15)
 	{
 		xil_printf("\nLa tache logicielle taskStop doit etre reveillee, "
-				"car le nombre de paquets qui a été rejeté à cause que le CRC était invalide est > 15 (%d)\n.", nbPacketCRCRejete);
+				"car le nombre de paquets qui a été rejeté à cause que le CRC était invalide est > 15 (%d).\n", nbPacketCRCRejete);
 		OSSemPost(SemStop);
 	}
 	OS_EXIT_CRITICAL(); /* Enable interrupts */
@@ -288,9 +288,13 @@ unsigned int computeCRC( INT16U* w, int nleft)
 */
 void TaskStop (void *data)
 {
+#if OS_CRITICAL_METHOD == 3
+	OS_CPU_SR cpu_sr = 0;
+#endif
 	INT8U err;
 	OSSemPend(SemStop, 0, &err);
-	xil_printf("ERREUR : Trop de CRC invalide !\n Le routeur va s'arreter!\n");
+	xil_printf("ERREUR : Trop de CRC invalide ! Le routeur va s'arreter!\n");
+	BSP_DisableInterrupt();
 	_DeleteTask();
 }
 
@@ -395,8 +399,9 @@ void TaskComputing (void *pdata)
 		else
 		{
 			/* Les paquets contenant des erreurs sont simplement rejetés*/
-			crc = computeCRC((INT16U*)(packet), 64);
-			if(packet->crc != crc)
+			crc = packet->crc;
+			packet->crc = 0;
+			if(crc != computeCRC((INT16U*)(packet), 64))
 			{
 				OS_ENTER_CRITICAL();
 				xil_printf("\n--TaskComputing: CRC invalide (Paquet rejete) (total : %d)\n", ++nbPacketCRCRejete);
@@ -408,6 +413,7 @@ void TaskComputing (void *pdata)
 				/* selon le type de paquets (vidéo, audio et autres, respectivement 1, 2 et 3), les paquets valides seront envoyés dans trois queues différentes */
 				/* Si les queues sont pleines vous devrez rajouter les paquets dans une queue qui sera lu par la tâche verification.*/
 				/* Si cette queue est pleine aussi, vous devez détruire le paquet */
+				packet->crc = crc;
 				switch(packet->type)
 				{
 				case High:
@@ -746,10 +752,10 @@ void _CreateTask()
 void _DeleteTask()
 {
 	INT8U err;
-	err = OSTaskDel(TASK_STOP_PRIO);
 	err = OSTaskDel(TASK_INJECTPACKET_PRIO);
 	err = OSTaskDel(TASK_PRINT_PRIO);
 	err = OSTaskDel(TASK_COMPUTING_PRIO);
 	err = OSTaskDel(TASK_FOWARDING_PRIO);
 	err = OSTaskDel(TASK_VERIFICATION_PRIO);
+	err = OSTaskDel(TASK_STOP_PRIO);
 }

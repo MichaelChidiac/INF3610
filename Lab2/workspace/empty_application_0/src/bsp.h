@@ -43,6 +43,7 @@ void  BSP_Init               (void);
 void  BSP_IntDisAll          (void);
 void  BSP_InitIntCtrl        (void);
 void  BSP_InitIO             (void);
+void BSP_DisableInterrupt(void);
 
 /* déclaration des fonctions associées aux interruptions des timers */
 extern void fitTimerHandler(void* InstancePtr);

@@ -257,5 +257,10 @@ void  BSP_InitIO (void)
     BSP_TmrInit();                                 /* Initialize the timers                            */
 }
 
-
-
+void BSP_DisableInterrupt(void)
+{
+	XIntc_Disconnect(&int_ctl, XPAR_XPS_INTC_0_FIT_TIMER_0_INTERRUPT_INTR);
+	XIntc_Disconnect(&int_ctl, XPAR_XPS_INTC_0_FIT_TIMER_1_INTERRUPT_INTR);
+	XIntc_Disable(&int_ctl, XPAR_XPS_INTC_0_FIT_TIMER_0_INTERRUPT_INTR);
+	XIntc_Disable(&int_ctl, XPAR_XPS_INTC_0_FIT_TIMER_1_INTERRUPT_INTR);
+}
