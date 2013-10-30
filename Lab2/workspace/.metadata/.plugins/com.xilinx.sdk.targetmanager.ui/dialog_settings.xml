@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<item value="bootloop" key="ucII-platform_hw_platform-microblaze_0-initElf"/>
-	<item value="Z:\inf3610_tp2\workspace\ucII-platform_hw_platform\system.bit" key="ucII-platform_hw_platform-bitFile"/>
-	<item value="Z:\inf3610_tp2\workspace\ucII-platform_hw_platform\system_bd.bmm" key="ucII-platform_hw_platform-bmmFile"/>
+	<item value="Z:\INF3610\Lab2\workspace\ucII-platform_hw_platform\system.bit" key="ucII-platform_hw_platform-bitFile"/>
+	<item value="Z:\INF3610\Lab2\workspace\ucII-platform_hw_platform\system_bd.bmm" key="ucII-platform_hw_platform-bmmFile"/>
 </section>

@@ -1,10 +1,10 @@
-#Sun Oct 27 17:42:51 EDT 2013
+#Tue Oct 29 21:14:19 EDT 2013
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:.sbss=ilmb_cntlr_0_dlmb_cntlr_0
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:Stack-size=32768
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:.data=ilmb_cntlr_0_dlmb_cntlr_0
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:Stack=ilmb_cntlr_0_dlmb_cntlr_0
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:.sbss2=ilmb_cntlr_0_dlmb_cntlr_0
-com.xilinx.sdk.linkgen.prefs.empty_application_0\:Heap-size=1024
+com.xilinx.sdk.linkgen.prefs.empty_application_0\:Heap-size=4096
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:.bss=ilmb_cntlr_0_dlmb_cntlr_0
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:.sdata2=ilmb_cntlr_0_dlmb_cntlr_0
 com.xilinx.sdk.linkgen.prefs.empty_application_0\:.text=ilmb_cntlr_0_dlmb_cntlr_0

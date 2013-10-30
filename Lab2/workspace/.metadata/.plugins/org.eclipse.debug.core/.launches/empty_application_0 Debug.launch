@@ -25,12 +25,13 @@
 <stringAttribute key="xilinx.data.files.list" value=""/>
 <booleanAttribute key="xilinx.elf.verify" value="true"/>
 <booleanAttribute key="xilinx.no.download.program" value="false"/>
+<booleanAttribute key="xilinx.profile.enable" value="false"/>
 <intAttribute key="xilinx.reset.type" value="0"/>
 <stringAttribute key="xilinx.romem.base" value=""/>
 <stringAttribute key="xilinx.romem.size" value=""/>
 <stringAttribute key="xilinx.stdio.baud" value="9600"/>
-<booleanAttribute key="xilinx.stdio.connect" value="false"/>
-<stringAttribute key="xilinx.stdio.port" value="Detecting COM Ports.."/>
+<booleanAttribute key="xilinx.stdio.connect" value="true"/>
+<stringAttribute key="xilinx.stdio.port" value="COM6"/>
 <booleanAttribute key="xilinx.use.remote.gdbserver" value="false"/>
 <booleanAttribute key="xilinx.xmd.safe.mode" value="false"/>
 </launchConfiguration>

@@ -33,11 +33,11 @@
 
 // Application tasks priorities
 #define TASK_STOP_PRIO 			10
-#define TASK_PRINT_PRIO 		11
+#define TASK_VERIFICATION_PRIO 	11
 #define TASK_INJECTPACKET_PRIO 	12
-#define TASK_COMPUTING_PRIO 	13
-#define TASK_FOWARDING_PRIO 	14
-#define TASK_VERIFICATION_PRIO 	15
+#define TASK_PRINT_PRIO 		13
+#define TASK_COMPUTING_PRIO 	14
+#define TASK_FOWARDING_PRIO 	15
 
 // Routing info.
 #define INT4_LOW  0				/* 0x00000000 */
@@ -99,6 +99,7 @@ int nbPacketMediumRejete 	= 0; // Nb de packets Medium rejetes
 int nbPacketHighRejete 		= 0; // Nb de packets High rejetes
 int nbPacketCRCRejete 		= 0; // Nb de packets rejetes pour mauvais crc
 int nbPacketSourceRejete 	= 0; // Nb de packets rejetes pour mauvaise source
+INT8U i = 0;
 
 // Print function parameters
 typedef struct
@@ -150,9 +151,6 @@ int main (void)
 	 /* Initialize µC/OS-II */
 	OSInit();
 
-	BSP_IntDisAll();
-    BSP_InitIO();
-	
     /* Create Semaphore */
 	SemPrint		= OSSemCreate(0);
     SemStop 		= OSSemCreate(0);
@@ -175,6 +173,8 @@ int main (void)
 
     _CreateTask();
 
+    BSP_InitIO();
+
     /* Start Multitasking */
     OSStart();
 
@@ -195,17 +195,15 @@ void fitTimerHandler (void* par)
 	OS_CPU_SR cpu_sr = 0;
 #endif
 
-	static unsigned int i = 0;
 	OS_ENTER_CRITICAL(); /* Disable interrupts */
-	if(nbPacketCRCRejete >= 15)
+	if(nbPacketCRCRejete > 15)
 	{
 		xil_printf("\nLa tache logicielle taskStop doit etre reveillee, "
 				"car le nombre de paquets qui a été rejeté à cause que le CRC était invalide est > 15 (%d).\n", nbPacketCRCRejete);
 		OSSemPost(SemStop);
 	}
-	OS_EXIT_CRITICAL(); /* Enable interrupts */
 	xil_printf("\nVerification completee %d!\n", i++);
-
+	OS_EXIT_CRITICAL(); /* Enable interrupts */
 }
 
 /*
@@ -218,10 +216,14 @@ void fitTimerHandler (void* par)
 */
 void fitTimer2Handler (void* par)
 {
-	static unsigned int i = 0;
+#if OS_CRITICAL_METHOD == 3
+	OS_CPU_SR cpu_sr = 0;
+#endif
 	/* devra réveiller la tâche verification pour qu’elle exécute son code */
 	OSSemPost(SemVerification);
+	OS_ENTER_CRITICAL();
 	xil_printf("\nLancement tache verification %d!\n", ++i);
+	OS_EXIT_CRITICAL();
 }
 
 /*
@@ -277,8 +279,8 @@ void TaskStop (void *data)
 {
 	INT8U err;
 	OSSemPend(SemStop, 0, &err);
-	xil_printf("ERREUR : Trop de CRC invalide ! Le routeur va s'arreter!\n");
-	BSP_DisableInterrupt();
+	xil_printf("ERREUR : Trop de CRC invalide ! Le routeur va s'arreter!");
+	BSP_IntDisAll();
 	_DeleteTask();
 }
 
@@ -461,7 +463,6 @@ void TaskForwarding (void *pdata)
   void* msg;
   Packet *packet;
   int LEDValue = 0;
-  PRINT_PARAM printRequest;
 
   pdata = pdata;
 
@@ -478,8 +479,10 @@ void TaskForwarding (void *pdata)
 	  else if((msg = OSQAccept(ptrFifoAudio, &err))) {}
 	  else if((msg = OSQAccept(ptrFifoOtherwise, &err))) {}
 
-	  if((packet = (Packet *)msg))
+	  if(msg != (void *)0)
 	  {
+		  packet = (Packet *)msg;
+
 		  bIntervalValid1 	= packet->dst > INT1_LOW && packet->dst < INT1_HIGH;
 		  bIntervalValid2 	= packet->dst > INT2_LOW && packet->dst < INT2_HIGH;
 		  bIntervalValid3 	= packet->dst > INT3_LOW && packet->dst < INT3_HIGH;
@@ -515,9 +518,9 @@ void TaskForwarding (void *pdata)
 			  err = OSMboxPost(printRequest.Mbox, packet);
 			  OSSemPost(SemPrint);
 			  /* la communication via la tâche forwarding et l’interface se fera par un mailbox*/
-			  if(err == OS_FALSE)
+			  if(err == OS_ERR_MBOX_FULL)
 			  {
-				  xil_printf("Impossbile d'envoyer le paquet a l'interface.\n");
+				  xil_printf("\n--TaskForwarding: Impossbile d'envoyer le paquet a l'interface.\n\n");
 				  free(packet); packet = 0;
 			  }
 			  else
@@ -541,59 +544,74 @@ void TaskForwarding (void *pdata)
 		xil_printf("	** dst : 0x%8x \n", packet->dst);
 *********************************************************************************************************
 */
-void TaskVerification (void *pdata)
+void TaskVerification (void *data)
 {
+#if OS_CRITICAL_METHOD == 3
+	OS_CPU_SR cpu_sr = 0;
+#endif
+
 	INT8U err;
 	void* msg;
 	Packet *packet;
-	static int i = 0;
+	int j = 0;
+	INT16U nmsgs;
+	OS_Q_DATA *pdata;
 
-	pdata = pdata;
+	data = data;
 
 	for(;;)
 	{
+		j = 0;
 		OSSemPend(SemVerification, 0, &err); /* s’exécutera périodiquement à toutes les cinq secondes grâce à une synchronisation avec l’interruption du deuxième fit_timer. */
-		msg = OSQPend(ptrFifoAuxilary, 0, &err);
-		packet = (Packet *)msg;
-
-		switch(packet->type)
+		OSQQuery(ptrFifoAuxilary, pdata);
+		nmsgs = pdata->OSNMsgs;
+		while(j < nmsgs)
 		{
-			case High:
-			err = OSQPost(ptrFifoVideo, packet);
-			if (err == OS_ERR_Q_FULL)
+			msg = OSQPend(ptrFifoAuxilary, 0, &err);
+			packet = (Packet *)msg;
+			switch(packet->type)
 			{
-				xil_printf("\n--TaskVerification: Fifo high pleine (Paquet rejete) (total : %d) !\n", ++nbPacketHighRejete);
-				free(packet); packet = 0;
-			}
-			break;
-
-			case Medium:
-			err = OSQPost(ptrFifoAudio, packet);
-			if (err == OS_ERR_Q_FULL)
-			{
-				xil_printf("\n--TaskVerification: Fifo medium pleine (Paquet rejete) (total : %d) !\n", ++nbPacketMediumRejete);
-				free(packet); packet = 0;
-			}
-			break;
-
-			case Low:
-			err = OSQPost(ptrFifoOtherwise, packet);
-			if (err == OS_ERR_Q_FULL)
-			{
-				xil_printf("\n--TaskVerification: Fifo low pleine (Paquet rejete) (total : %d) !\n", ++nbPacketLowRejete);
-				free(packet); packet = 0;
-			}
-			break;
-
-			default:
+				case High:
+				err = OSQPost(ptrFifoVideo, packet);
+				if (err == OS_ERR_Q_FULL)
+				{
+					xil_printf("\n--TaskVerification: Fifo high pleine (Paquet rejete) (total : %d) !\n", ++nbPacketHighRejete);
+					free(packet); packet = 0;
+				}
 				break;
-		}
 
-		if (packet)
-		{
-			xil_printf("\n********Remise du Paquet # %d ******** \n", ++i);
-			xil_printf("	** src : 0x%8x \n", packet->src);
-			xil_printf("	** dst : 0x%8x \n", packet->dst);
+				case Medium:
+				err = OSQPost(ptrFifoAudio, packet);
+				if (err == OS_ERR_Q_FULL)
+				{
+					xil_printf("\n--TaskVerification: Fifo medium pleine (Paquet rejete) (total : %d) !\n", ++nbPacketMediumRejete);
+					free(packet); packet = 0;
+				}
+				break;
+
+				case Low:
+				err = OSQPost(ptrFifoOtherwise, packet);
+				if (err == OS_ERR_Q_FULL)
+				{
+					xil_printf("\n--TaskVerification: Fifo low pleine (Paquet rejete) (total : %d) !\n", ++nbPacketLowRejete);
+					free(packet); packet = 0;
+				}
+				break;
+
+				default:
+					break;
+			}
+
+
+			if (packet != 0)
+			{
+				OS_ENTER_CRITICAL();
+				xil_printf("\n********Remise du Paquet # %d ******** \n", ++i);
+				OS_EXIT_CRITICAL();
+				xil_printf("	** src : 0x%8x \n", packet->src);
+				xil_printf("	** dst : 0x%8x \n", packet->dst);
+			}
+			++j;
 		}
 	}
 }

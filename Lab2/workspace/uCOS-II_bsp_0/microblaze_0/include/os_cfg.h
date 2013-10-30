@@ -86,7 +86,7 @@
 #define OS_Q_POST_EN              1      /*     Include code for OSQPost()                               */
 #define OS_Q_POST_FRONT_EN        0      /*     Include code for OSQPostFront()                          */
 #define OS_Q_POST_OPT_EN          0      /*     Include code for OSQPostOpt()                            */
-#define OS_Q_QUERY_EN             0      /*     Include code for OSQQuery()                              */
+#define OS_Q_QUERY_EN             1      /*     Include code for OSQQuery()                              */
 
                                          /* ------------------------ SEMAPHORES ------------------------ */
 #define OS_SEM_EN                 1      /* Enable (1) or Disable (0) code generation for SEMAPHORES     */
