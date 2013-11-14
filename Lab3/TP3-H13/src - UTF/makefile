@@ -19,7 +19,7 @@ LIBDIR	=	-L $(PROJETLIB)
 	
 ### Sources ###
 SOURCES = 	main.cpp \
-			Central.cpp \
+			Control.cpp \
 			Data.cpp \
 			Print.cpp \
 			User.cpp 

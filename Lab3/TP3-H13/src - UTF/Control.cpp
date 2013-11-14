@@ -4,7 +4,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 #include "Control.h"
-
+#include <time.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -16,6 +16,10 @@ Control::Control( sc_module_name zName, unsigned int DictSize, unsigned int maxE
 {
 	DictSize_ = DictSize;
 	maxErrors_ = maxErrors;
+	nbErrors_ = 0;
+	for (int i = 0; i < 20; i++){
+		foundBool_[i] = false;
+	}
 }
 
 
@@ -41,12 +45,15 @@ Control::~Control()
 ///////////////////////////////////////////////////////////////////////////////
 bool Control::StartGame(void)
 {
-	/*
-
-			À compléter
-
-		*/
-
+	int number;
+	srand ( time(NULL) );
+	number = rand() % DictSize_;
+	wordLength_ = dataPort->GetWord(number);
+	if (wordLength_ == 0) return false;
+	for (int i = 0; i < wordLength_; i++) word_[i] = dataPort->GetChar(i);
+	printPort->SetWordLength(wordLength_);
+	printPort->UpdatePrint();
+	return true;
 }
 
 
@@ -59,10 +66,31 @@ bool Control::StartGame(void)
 ///////////////////////////////////////////////////////////////////////////////
 bool  Control::TryNewLetter(char a)
 {
-	/*
-
-			À compléter
-
-		*/
+	bool found = false;
+	bool win = true;
+	for (int i = 0; i < wordLength_; i++){
+		if(word_[i] == a){
+			printPort->CharacterFound(i,a);
+			foundBool_[i] = true;
+			found = true;
+		}
+	}
+	if (found == false){
+		printPort->AddError(); 
+		nbErrors_++;
+	}
+	if (nbErrors_ == maxErrors_){
+		printPort->EndGame(false);
+		return false;
+	}
+	for (int i = 0; i < wordLength_; i++){
+		if (foundBool_[i] == false)
+			win = false;
+	}
+	if (win == true){
+		printPort->EndGame(true);
+		return false;
+	}
+	return true;
 }
 

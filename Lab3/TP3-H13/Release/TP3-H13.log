@@ -1,0 +1,21 @@
+﻿La génération a démarré 2013-11-13 21:26:31.
+     1>Projet "Z:\INF3610\Lab3\TP3-H13\TP3-H13.vcxproj" sur le nœud 2 (build cible(s)).
+     1>InitializeBuildStatus:
+         Mise à jour de l'horodatage "Release\TP3-H13.unsuccessfulbuild".
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt "src - UTF\Control.cpp" "src - UTF\Data.cpp" "src - UTF\main.cpp" "src - UTF\Print.cpp" "src - UTF\User.cpp"
+         Control.cpp
+     1>z:\inf3610\lab3\tp3-h13\src - utf\Control.h(9): fatal error C1083: Impossible d'ouvrir le fichier include : 'systemc.h' : No such file or directory
+         Data.cpp
+     1>z:\inf3610\lab3\tp3-h13\src - utf\Data.h(9): fatal error C1083: Impossible d'ouvrir le fichier include : 'systemc.h' : No such file or directory
+         main.cpp
+     1>src - UTF\main.cpp(6): fatal error C1083: Impossible d'ouvrir le fichier include : 'systemc.h' : No such file or directory
+         Print.cpp
+     1>z:\inf3610\lab3\tp3-h13\src - utf\Print.h(9): fatal error C1083: Impossible d'ouvrir le fichier include : 'systemc.h' : No such file or directory
+         User.cpp
+     1>z:\inf3610\lab3\tp3-h13\src - utf\User.h(9): fatal error C1083: Impossible d'ouvrir le fichier include : 'systemc.h' : No such file or directory
+     1>Génération du projet "Z:\INF3610\Lab3\TP3-H13\TP3-H13.vcxproj" terminée (build cible(s)) -- ÉCHEC.
+
+ÉCHEC de la build.
+
+Temps écoulé 00:00:00.18

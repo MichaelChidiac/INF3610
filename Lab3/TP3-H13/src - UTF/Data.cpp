@@ -4,8 +4,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 #include "Data.h"
-
-
+using namespace std;
 ///////////////////////////////////////////////////////////////////////////////
 //
 //	Constructeur
@@ -35,7 +34,7 @@ unsigned int Data::GetWord(unsigned int wordPosition)
     // Creating a string variable.
     std::string temp;
 
-	int counter = 0;
+	unsigned int counter = 0;
     while(!readFromFile.eof()){ // I cant figure out what to add here so that the code will find and store the destination.
         getline(readFromFile, temp);
 		if(counter == wordPosition)
@@ -47,7 +46,7 @@ unsigned int Data::GetWord(unsigned int wordPosition)
 
 	if(temp.length() > 0)
 	{	
-		wordLength = std::stoi(temp.substr(0, temp.find(" ")));
+		wordLength = stoi(temp.substr(0, temp.find(" ")));
 		word = temp.substr(temp.find(" ")+1, temp.length()-1);
 		return wordLength;
 	}

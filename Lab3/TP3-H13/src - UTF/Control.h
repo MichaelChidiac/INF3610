@@ -41,8 +41,12 @@ class Control : public sc_module, public InterfaceRead
 	private:
 		// Process SystemC
 		SC_HAS_PROCESS(Control);
-		unsigned int DictSize_;
-		unsigned int maxErrors_;
+		int DictSize_;
+		int maxErrors_;
+		int wordLength_;
+		int nbErrors_;
+		char word_[20];
+		bool foundBool_[20];
 };
 
 #endif

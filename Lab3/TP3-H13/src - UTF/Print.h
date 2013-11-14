@@ -9,7 +9,6 @@
 #include <systemc.h>
 #include <stdio.h>
 #include "InterfacePrint.h"
-#include <string.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -38,7 +37,7 @@ class Print : public sc_module, public InterfacePrint
 		void PrintLose();
 
 		//Variables
-		std::string currentWord;
+		char currentWord[20];
 		int wordLength_;
 		int nbError_;
 };

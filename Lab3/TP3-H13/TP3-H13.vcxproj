@@ -51,7 +51,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SystemC.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\systemc-2.2.0\msvc71\SystemC\Debug\SystemC.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

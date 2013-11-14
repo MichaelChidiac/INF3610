@@ -36,11 +36,10 @@ Print::~Print()
 ///////////////////////////////////////////////////////////////////////////////
 void Print::EndGame(bool winner)
 {
-	/*
-
-			À compléter
-
-		*/
+	if (winner == true)
+		PrintWin();
+	else
+		PrintLose();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,8 +59,7 @@ void Print::SetWordLength(unsigned int wordLength)
 		*/
 	nbError_ = 0;
 	wordLength_ = wordLength;
-	currentWord = "";
-	for (int i = 0; i < wordLength; i++){
+	for (int i = 0; i < wordLength_; i++){
 		currentWord[i] = '_';
 	}
 }
@@ -73,11 +71,7 @@ void Print::SetWordLength(unsigned int wordLength)
 ///////////////////////////////////////////////////////////////////////////////
 void Print::CharacterFound(unsigned int position, unsigned char charFound)
 {
-	/*
-
-			À compléter
-
-		*/
+	currentWord[position] = charFound;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,11 +83,7 @@ void Print::CharacterFound(unsigned int position, unsigned char charFound)
 ///////////////////////////////////////////////////////////////////////////////
 void Print::AddError()
 {
-	/*
-
-			À compléter
-
-		*/
+	nbError_++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,11 +95,8 @@ void Print::AddError()
 ///////////////////////////////////////////////////////////////////////////////
 void Print::UpdatePrint()
 {
-	/*
-
-		À compléter
-
-	*/
+	cout << "Mot actuel: <" << wordLength_ << "> : " << currentWord << endl;
+	cout << "Nombre d'erreur: " << nbError_ << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
