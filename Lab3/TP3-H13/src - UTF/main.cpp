@@ -24,12 +24,10 @@ int sc_main(int arg_count, char **arg_value)
 	// Variables
 	int sim_units = 2; //SC_NS 
 	
-	sc_module_name control_name("instance_control");
-	sc_module_name print_name("instance_print");
-	sc_module_name data_name("instance_data");
-	Control instance_control(control_name,DICTIONARYSIZE,NUMBEROFERRORSMAXIMUM);
-	Print instance_print(print_name);
-	Data instance_data(data_name);
+	Control instance_control("instance_control",DICTIONARYSIZE,NUMBEROFERRORSMAXIMUM);
+	Print instance_print("instance_print");
+	Data instance_data("instance_data");
+	User instance_user("instance_user");
 
 	instance_control.dataPort(instance_data);
 	instance_control.printPort(instance_print);

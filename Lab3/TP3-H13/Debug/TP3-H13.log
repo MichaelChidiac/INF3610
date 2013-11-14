@@ -1,60 +1,27 @@
-﻿La génération a démarré 2013-11-13 21:27:58.
+﻿La génération a démarré 2013-11-13 22:08:12.
      1>Projet "Z:\INF3610\Lab3\TP3-H13\TP3-H13.vcxproj" sur le nœud 2 (build cible(s)).
      1>InitializeBuildStatus:
-         Mise à jour de l'horodatage "Debug\TP3-H13.unsuccessfulbuild".
+         Création de "Debug\TP3-H13.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
        ClCompile:
-         Toutes les sorties sont à jour.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt "src - UTF\main.cpp" /vmg 
+         main.cpp
+     1>c:\systemc-2.2.0\src\sysc\datatypes\int\sc_nbutils.h(85): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : voir la déclaration de 'sprintf'
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\INF3610\Lab3\Debug\TP3-H13.exe" /NOLOGO "C:\systemc-2.2.0\msvc71\SystemC\Debug\SystemC.lib" /MANIFEST /ManifestFile:"Debug\TP3-H13.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"Z:\INF3610\Lab3\Debug\TP3-H13.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Z:\INF3610\Lab3\Debug\TP3-H13.lib" /MACHINE:X86 Debug\Control.obj
          Debug\Data.obj
          Debug\main.obj
          Debug\Print.obj
          Debug\User.obj
-     1>SystemC.lib(sc_cthread_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_attribute.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_report.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_main_main.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_reset.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_thread_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_method_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_report_handler.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_export.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_module_registry.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_object_manager.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_event.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_port.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_time.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_prim_channel.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_simcontext.obj) : error LNK2019: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ) référencé dans la fonction "public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > & __thiscall std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >::assign(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,unsigned int,unsigned int)" (?assign@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV12@ABV12@II@Z)
-     1>SystemC.lib(sc_module.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_interface.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_object.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xran(void)" (?_Xran@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_cthread_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_attribute.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_report.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_main_main.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_reset.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_thread_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_method_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_report_handler.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_export.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_module_registry.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_object_manager.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_event.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_port.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_time.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_process.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_prim_channel.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_simcontext.obj) : error LNK2019: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ) référencé dans la fonction "protected: bool __thiscall std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >::_Grow(unsigned int,bool)" (?_Grow@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@IAE_NI_N@Z)
-     1>SystemC.lib(sc_module.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_interface.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_object.obj) : error LNK2001: symbole externe non résolu "public: static void __cdecl std::_String_base::_Xlen(void)" (?_Xlen@_String_base@std@@SAXXZ)
-     1>SystemC.lib(sc_report_handler.obj) : error LNK2001: symbole externe non résolu "long const std::_BADOFF" (?_BADOFF@std@@3JB)
-     1>SystemC.lib(sc_report_handler.obj) : error LNK2019: symbole externe non résolu "private: static void __cdecl std::locale::facet::facet_Register(class std::locale::facet *)" (?facet_Register@facet@locale@std@@CAXPAV123@@Z) référencé dans la fonction "public: void __thiscall std::locale::facet::_Register(void)" (?_Register@facet@locale@std@@QAEXXZ)
-     1>Z:\INF3610\Lab3\Debug\TP3-H13.exe : fatal error LNK1120: 4 externes non résolus
-     1>Génération du projet "Z:\INF3610\Lab3\TP3-H13\TP3-H13.vcxproj" terminée (build cible(s)) -- ÉCHEC.
+         LINK : Z:\INF3610\Lab3\Debug\TP3-H13.exe introuvable ou non généré par la dernière édition de liens incrémentielle ; édition de liens complète en cours
+         TP3-H13.vcxproj -> Z:\INF3610\Lab3\Debug\TP3-H13.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"Z:\INF3610\Lab3\Debug\TP3-H13.exe;#1" /manifest "Debug\TP3-H13.exe.intermediate.manifest"
+       FinalizeBuildStatus:
+         Suppression du fichier "Debug\TP3-H13.unsuccessfulbuild".
+         Mise à jour de l'horodatage "Debug\TP3-H13.lastbuildstate".
+     1>Génération du projet "Z:\INF3610\Lab3\TP3-H13\TP3-H13.vcxproj" terminée (build cible(s)).
 
-ÉCHEC de la build.
+La génération a réussi.
 
-Temps écoulé 00:00:00.13
+Temps écoulé 00:00:02.60
