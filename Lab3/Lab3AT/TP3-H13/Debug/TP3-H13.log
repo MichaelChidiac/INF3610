@@ -1,0 +1,31 @@
+﻿La génération a démarré 2013-11-14 18:33:47.
+     1>Projet "Z:\INF3610\Lab3AT\TP3-H13\TP3-H13.vcxproj" sur le nœud 2 (build cible(s)).
+     1>InitializeBuildStatus:
+         Création de "Debug\TP3-H13.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
+       ClCompile:
+         Toutes les sorties sont à jour.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt "src - AT\User.cpp" /vmg 
+         User.cpp
+     1>z:\systemc-2.2.0\src\sysc\datatypes\int\sc_nbutils.h(85): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : voir la déclaration de 'sprintf'
+     1>z:\inf3610\lab3at\tp3-h13\src - at\user.cpp(77): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _getch. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\conio.h(128) : voir la déclaration de 'getch'
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\INF3610\Lab3AT\Debug\TP3-H13.exe" /NOLOGO SystemC.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\TP3-H13.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"Z:\INF3610\Lab3AT\Debug\TP3-H13.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Z:\INF3610\Lab3AT\Debug\TP3-H13.lib" /MACHINE:X86 Debug\assert.obj
+         Debug\Control.obj
+         Debug\Data.obj
+         Debug\main.obj
+         Debug\Print.obj
+         Debug\User.obj
+         LINK : Z:\INF3610\Lab3AT\Debug\TP3-H13.exe introuvable ou non généré par la dernière édition de liens incrémentielle ; édition de liens complète en cours
+         TP3-H13.vcxproj -> Z:\INF3610\Lab3AT\Debug\TP3-H13.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"Z:\INF3610\Lab3AT\Debug\TP3-H13.exe;#1" /manifest "Debug\TP3-H13.exe.intermediate.manifest"
+       FinalizeBuildStatus:
+         Suppression du fichier "Debug\TP3-H13.unsuccessfulbuild".
+         Mise à jour de l'horodatage "Debug\TP3-H13.lastbuildstate".
+     1>Génération du projet "Z:\INF3610\Lab3AT\TP3-H13\TP3-H13.vcxproj" terminée (build cible(s)).
+
+La génération a réussi.
+
+Temps écoulé 00:00:02.89

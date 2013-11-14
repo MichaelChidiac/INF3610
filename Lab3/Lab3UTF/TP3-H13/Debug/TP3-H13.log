@@ -1,0 +1,17 @@
+﻿La génération a démarré 2013-11-14 13:29:25.
+     1>Projet "Z:\INF3610\Lab3UTF\TP3-H13\TP3-H13.vcxproj" sur le nœud 2 (build cible(s)).
+     1>InitializeBuildStatus:
+         Création de "Debug\TP3-H13.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
+       ClCompile:
+         Toutes les sorties sont à jour.
+       Link:
+         Toutes les sorties sont à jour.
+         TP3-H13.vcxproj -> Z:\INF3610\Lab3UTF\Debug\TP3-H13.exe
+       FinalizeBuildStatus:
+         Suppression du fichier "Debug\TP3-H13.unsuccessfulbuild".
+         Mise à jour de l'horodatage "Debug\TP3-H13.lastbuildstate".
+     1>Génération du projet "Z:\INF3610\Lab3UTF\TP3-H13\TP3-H13.vcxproj" terminée (build cible(s)).
+
+La génération a réussi.
+
+Temps écoulé 00:00:00.06
