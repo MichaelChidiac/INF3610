@@ -16,9 +16,9 @@ wrapper_coProcessor_TLM::wrapper_coProcessor_TLM(sc_module_name zName, unsigned 
 	//Assigne les variables
 	m_ulStartAdress = ulStartAdress;
 	m_ulEndAdress = ulEndAdress;
-	/*
-		À compléter
-	*/
+	
+	// Register callback for incoming b_transport interface method call
+    socket.register_b_transport(this, &wrapper_coProcessor_TLM::b_transport);
 }
 
 

@@ -36,41 +36,70 @@ int sc_main(int arg_count, char **arg_value)
 	
 	// Horloge
 	sc_clock clk( "SysClock", 40, SC_NS, 0.5 );
-	sc_signal<unsigned int> pont_Data_CoOut_Port;
-	sc_signal<unsigned int> pont_Data_CoIn_Port;
-	sc_signal<bool>			pont_Enable_Port;
-	sc_signal<bool>			pont_Ready_Port;
-	sc_signal<bool>			pont_RW_Port;
 
-    /* 
-	À compléter
-	*/
+	sc_signal<unsigned int> pont_Data_CoProcessor_OutPort;
+	sc_signal<unsigned int> pont_Data_CoProcessor_InPort;
+	sc_signal<unsigned int> pont_Data_Processor_OutPort;
+	sc_signal<unsigned int> pont_Data_Processor_InPort;
+
+	sc_signal<bool>			pont_Enable_CoProcessor_Port;
+	sc_signal<bool>			pont_Enable_Processor_Port;
+	sc_signal<bool>			pont_Enable_Console_Port;
+
+	sc_signal<bool>			pont_Ready_Console_Port;
+	sc_signal<bool>			pont_Ready_CoProcessor_Port;
+	sc_signal<bool>			pont_Ready_Processor_Port;
+
+	sc_signal<bool>			pont_RW_CoProcessor_Port;
+	sc_signal<bool>			pont_RW_Processor_Port;
+
 	Console instance_console("instance_console");
 	processor instance_processor("instance_processor");
 	CoProcessor instance_coprocessor("instance_coprocessor");
-	
-	instance_console.ClockPort(clk);
-	instance_processor.ClockPort(clk);
-	instance_coprocessor.ClockPort(clk);
+	wrapper_console_TLM instance_wrapper_console("instance_wrapper_console", 0, 0); //Valeur d'addresse a changer
+	wrapper_coProcessor_TLM instance_wrapper_coProcessor("instance_wrapper_coProcessor", 0, 0); //Valeur d'addresse a changer
+	wrapper_processor_TLM instance_wrapper_Processor("instance_wrapper_Processor");
+	SimpleBusLT<2,1> instance_simplebus("instance_simplebus");
 
-	instance_coprocessor.CoProcessor_Data_InPort(pont_Data_CoIn_Port);
-	instance_processor.Processor_Data_OutPort(pont_Data_CoIn_Port);
+	instance_coprocessor.CoProcessor_Data_InPort(pont_Data_CoProcessor_InPort);
+	instance_wrapper_coProcessor.Wrapper_CoProcessor_Data_OutPort(pont_Data_CoProcessor_InPort);
 
-	instance_coprocessor.CoProcessor_Data_OutPort(pont_Data_CoOut_Port);
-	instance_console.Console_Data_InPort(pont_Data_CoOut_Port);
-	instance_processor.Processor_Data_InPort(pont_Data_CoOut_Port);
+	instance_coprocessor.CoProcessor_Data_OutPort(pont_Data_CoProcessor_OutPort);
+	instance_wrapper_coProcessor.Wrapper_CoProcessor_Data_InPort(pont_Data_CoProcessor_OutPort);
 
-	instance_coprocessor.CoProcessor_Ready_InPort(pont_Ready_Port);
-	instance_console.Console_Ready_OutPort(pont_Ready_Port);
-	instance_processor.Processor_Ready_InPort(pont_Ready_Port);
+	instance_processor.Processor_Data_InPort(pont_Data_CoProcessor_InPort);
+	instance_wrapper_Processor.Wrapper_Data_OutPort(pont_Data_CoProcessor_InPort);
 
-	instance_coprocessor.CoProcessor_Enable_InPort(pont_Enable_Port);
-	instance_console.Console_Enable_InPort(pont_Enable_Port);
-	instance_processor.Processor_Enable_OutPort(pont_Enable_Port);
+	instance_processor.Processor_Data_OutPort(pont_Data_CoProcessor_OutPort);
+	instance_wrapper_Processor.Wrapper_Data_InPort(pont_Data_CoProcessor_OutPort);
 
-	instance_coprocessor.CoProcessor_RW_InPort(pont_RW_Port);
-	instance_processor.Processor_RW_OutPort(pont_RW_Port);
+	instance_coprocessor.CoProcessor_Enable_InPort(pont_Enable_CoProcessor_Port);
+	instance_wrapper_coProcessor.Wrapper_CoProcessor_Enable_OutPort(pont_Enable_CoProcessor_Port);
 
+	instance_processor.Processor_Enable_OutPort(pont_Enable_Processor_Port);
+	instance_wrapper_Processor.Wrapper_Enable_InPort(pont_Enable_Processor_Port);
+
+	instance_console.Console_Enable_InPort(pont_Enable_Console_Port);
+	instance_wrapper_console.Wrapper_Console_Enable_OutPort(pont_Enable_Console_Port);
+
+	instance_console.Console_Ready_OutPort(pont_Ready_Console_Port);
+	instance_wrapper_console.Wrapper_Console_Ready_InPort(pont_Ready_Console_Port);
+
+	instance_coprocessor.CoProcessor_Ready_OutPort(pont_Ready_CoProcessor_Port);
+	instance_wrapper_coProcessor.Wrapper_CoProcessor_Ready_InPort(pont_Ready_CoProcessor_Port);
+
+	instance_processor.Processor_Ready_InPort(pont_Ready_Processor_Port);
+	instance_wrapper_Processor.Wrapper_Ready_OutPort(pont_Ready_Processor_Port);
+
+	instance_coprocessor.CoProcessor_RW_InPort(pont_RW_CoProcessor_Port);
+	instance_wrapper_coProcessor.Wrapper_CoProcessor_RW_OutPort(pont_RW_CoProcessor_Port);
+
+	instance_processor.Processor_RW_OutPort(pont_RW_Processor_Port);
+	instance_wrapper_Processor.Wrapper_RW_InPort(pont_RW_Processor_Port);
+
+	instance_wrapper_Processor.socket.bind(instance_simplebus.target_socket[0]);
+	instance_simplebus.initiator_socket[0].bind(instance_wrapper_coProcessor.socket);
+	instance_simplebus.initiator_socket[1].bind(instance_wrapper_console.socket);
 	
 	// Démarrage de l'application
 	if (!m_bError)

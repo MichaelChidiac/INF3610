@@ -26,7 +26,7 @@ class CoProcessor : public sc_module
 		sc_out<unsigned int>	CoProcessor_Data_OutPort;
 		sc_in<unsigned int>		CoProcessor_Data_InPort;
 		sc_in<bool>				CoProcessor_Enable_InPort;
-		sc_out<bool>			CoProcessor_Ready_InPort;
+		sc_out<bool>			CoProcessor_Ready_OutPort;
 		sc_in<bool>				CoProcessor_RW_InPort;
 
 	

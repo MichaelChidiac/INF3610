@@ -21,10 +21,10 @@ class wrapper_console_TLM : public sc_module
 {
 public:
     // Ports
-  	/*
-		À compléter
-	*/
-
+  	sc_in_clk				ClockPort;
+	sc_out<unsigned port>	Wrapper_Console_Data_OutPort;
+	sc_out<bool>			Wrapper_Console_Enable_OutPort;
+	sc_in<bool>				Wrapper_Console_Ready_InPort;
 
 	// TLM-2 socket
 	tlm_utils::simple_target_socket<wrapper_console_TLM> socket;

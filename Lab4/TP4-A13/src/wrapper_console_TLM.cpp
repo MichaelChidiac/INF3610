@@ -17,9 +17,10 @@ wrapper_console_TLM::wrapper_console_TLM(sc_module_name zName, unsigned long ulS
 	//Assigne les variables
 	m_ulStartAdress = ulStartAdress;
 	m_ulEndAdress = ulEndAdress;
-	/*
-		À compléter
-	*/	
+	
+    // Register callback for incoming b_transport interface method call
+    socket.register_b_transport(this, &wrapper_console_TLM::b_transport);
+  
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +34,7 @@ wrapper_console_TLM::~wrapper_console_TLM()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	b_transport : répond aux requêtes envoyées par le initiatot
+//	b_transport : répond aux requêtes envoyées par le initiator
 //
 ///////////////////////////////////////////////////////////////////////////////
 void wrapper_console_TLM::b_transport( transaction_type& trans, sc_time& delay )
