@@ -56,8 +56,8 @@ int sc_main(int arg_count, char **arg_value)
 	Console instance_console("instance_console");
 	processor instance_processor("instance_processor");
 	CoProcessor instance_coprocessor("instance_coprocessor");
-	wrapper_console_TLM instance_wrapper_console("instance_wrapper_console", 0, 0); //Valeur d'addresse a changer
-	wrapper_coProcessor_TLM instance_wrapper_coProcessor("instance_wrapper_coProcessor", 0, 0); //Valeur d'addresse a changer
+	wrapper_console_TLM instance_wrapper_console("instance_wrapper_console", ADRESSE_CONSOLE_DEBUT, ADRESSE_CONSOLE_FIN);
+	wrapper_coProcessor_TLM instance_wrapper_coProcessor("instance_wrapper_coProcessor", ADRESSE_COPROCESSOR_DEBUT, ADRESSE_COPROCESSOR_FIN);
 	wrapper_processor_TLM instance_wrapper_Processor("instance_wrapper_Processor");
 	SimpleBusLT<2,1> instance_simplebus("instance_simplebus");
 

@@ -21,7 +21,6 @@ class wrapper_coProcessor_TLM : public sc_module
 {
 public:
     // Ports
-	sc_in_clk	ClockPort;
 	sc_in<unsigned int>			Wrapper_CoProcessor_Data_InPort;
 	sc_out<unsigned int>		Wrapper_CoProcessor_Data_OutPort;
 	sc_out<bool>				Wrapper_CoProcessor_Enable_OutPort;

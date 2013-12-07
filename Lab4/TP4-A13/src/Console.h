@@ -20,7 +20,7 @@ class Console : public sc_module
 	public: 
 		// Variable
 		sc_in_clk				ClockPort;
-		sc_in<unsigned port>	Console_Data_InPort;
+		sc_in<unsigned int>		Console_Data_InPort;
 		sc_in<bool>				Console_Enable_InPort;
 		sc_out<bool>			Console_Ready_OutPort;
 
