@@ -38,6 +38,11 @@ CoProcessor::~CoProcessor()
 	{
 		delete MemoireInterne;
 	}
+	
+	if(actualWord)
+	{
+		delete actualWord;
+	}
 }
 
 
@@ -140,7 +145,7 @@ void CoProcessor::thread(void)
 					index++;
 				}
 				break;
-			case 8196:
+			case 8196: // Lecture du nombre d’erreurs
 				CoProcessor_Data_OutPort.write( actualNumberOfErrors );
 				index = 0;
 				break;
