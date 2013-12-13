@@ -21,14 +21,13 @@ using namespace std;
 class CoProcessor : public sc_module
 {
 	public: 
-
-		sc_in_clk	ClockPort;
+		// Ports
+		sc_in_clk				ClockPort;
 		sc_out<unsigned int>	CoProcessor_Data_OutPort;
 		sc_in<unsigned int>		CoProcessor_Data_InPort;
 		sc_in<bool>				CoProcessor_Enable_InPort;
 		sc_out<bool>			CoProcessor_Ready_OutPort;
 		sc_in<bool>				CoProcessor_RW_InPort;
-
 	
 		// Constructeur
 		CoProcessor( sc_module_name zName );
@@ -52,6 +51,10 @@ class CoProcessor : public sc_module
 
 		// Registres
 		sc_signal<int> reg[4];
+
+		// Membres
+		unsigned char* MemoireInterne;
+		unsigned int NumLettres, MaxErreurs;
 };
 
 #endif

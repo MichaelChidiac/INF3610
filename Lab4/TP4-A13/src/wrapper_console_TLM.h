@@ -20,7 +20,7 @@
 class wrapper_console_TLM : public sc_module
 {
 public:
-    // Ports
+	// Ports
 	sc_out<unsigned int>	Wrapper_Console_Data_OutPort;
 	sc_out<bool>			Wrapper_Console_Enable_OutPort;
 	sc_in<bool>				Wrapper_Console_Ready_InPort;

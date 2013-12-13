@@ -12,7 +12,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 wrapper_processor_TLM::wrapper_processor_TLM(sc_module_name zName, bool bVerbose)
-: sc_module(zName)
+: sc_module(zName), socket("socket")
 {
 	// Thread
 	SC_THREAD( thread );
@@ -48,19 +48,24 @@ void wrapper_processor_TLM::thread()
 	// Boucle
 	while(1)
 	{
-	
 		// En attente que la donnée soit prêtes
 		if (Wrapper_Enable_InPort.read() == true)
 		{					
-		
 			if(Wrapper_RW_InPort.read() == false)
 			{
-					/*
-						À compléter
-					*/
+				// Indique que le wrapper est occupé
+				Wrapper_Ready_OutPort.write( false );
+
+				// Récupère l'adresse
+				ulDestinationAddress = Wrapper_Address_InPort.read();
+
+				// Récupère les données
+				ulData = Wrapper_Data_InPort.read();
+
+				// Écriture des données sur le bus
+				busLT_write(ulDestinationAddress, (void*)&ulData, sizeof(unsigned long));
 			}
-			
-			else /* Wrapper_RW_InPort.read() == true */
+			else // Wrapper_RW_InPort.read() == true
 			{
 				// Occupé
 				Wrapper_Ready_OutPort.write( false );
@@ -71,11 +76,12 @@ void wrapper_processor_TLM::thread()
 				// Lecture du bus
 				busLT_read(ulDestinationAddress, (void*)&ulData, sizeof(unsigned long));
 				
+				// Envoie les données au processeur
 				Wrapper_Data_OutPort.write(ulData);
 			}
 		}
 		
-		// Le wrapper est prêt
+		// Indique que le wrapper est prêt
 		Wrapper_Ready_OutPort.write( true );
 
 		wait(1);
@@ -144,7 +150,6 @@ bool wrapper_processor_TLM::busLT_write(unsigned long ulAddress,  void* ptrData,
 //////////////////////////////////////////////////////////////////////////////
 bool wrapper_processor_TLM::busLT_read(unsigned long ulAddress,  void* ptrData, unsigned long ulDataLength)
 {	  
-  	
     command_type cmd = tlm::TLM_READ_COMMAND;
 	transaction_type* trans = new transaction_type;
 	sc_time delay = sc_time(0.0005, SC_NS);

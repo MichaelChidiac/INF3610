@@ -39,19 +39,19 @@
     <ClInclude Include="src\RAM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\wrapper_console_TLM.h">
+    <ClInclude Include="src\include\busLT_standalone_definition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\wrapper_coProcessor_TLM.h">
+    <ClInclude Include="src\include\SimpleBusLT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\wrapper_processor_TLM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\busLT_standalone_definition.h">
+    <ClInclude Include="src\wrapper_coProcessor_TLM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\SimpleBusLT.h">
+    <ClInclude Include="src\wrapper_console_TLM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,10 +17,9 @@ wrapper_console_TLM::wrapper_console_TLM(sc_module_name zName, unsigned long ulS
 	//Assigne les variables
 	m_ulStartAdress = ulStartAdress;
 	m_ulEndAdress = ulEndAdress;
-	
-    // Register callback for incoming b_transport interface method call
+
+	// Register callback for incoming b_transport interface method call
     socket.register_b_transport(this, &wrapper_console_TLM::b_transport);
-  
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,7 +33,7 @@ wrapper_console_TLM::~wrapper_console_TLM()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	b_transport : répond aux requêtes envoyées par le initiator
+//	b_transport : répond aux requêtes envoyées par le initiatot
 //
 ///////////////////////////////////////////////////////////////////////////////
 void wrapper_console_TLM::b_transport( transaction_type& trans, sc_time& delay )
@@ -84,10 +83,26 @@ void wrapper_console_TLM::busLT_slave_read(sc_dt::uint64 add, unsigned char* ptr
 ///////////////////////////////////////////////////////////////////////////////
 void wrapper_console_TLM::busLT_slave_write(sc_dt::uint64 add, unsigned char* ptrData, unsigned int len)
 {
-	unsigned int data ;
+	unsigned int data;
 	memcpy(&data, ptrData, len);
-	
-	/*
-		À compléter
-	*/
+
+	// Donnée valide
+	Wrapper_Console_Enable_OutPort.write( false );
+
+	// Addresse en output
+	Wrapper_Console_Data_OutPort.write( add );
+
+	// Donnée valide
+	Wrapper_Console_Enable_OutPort.write( true );
+
+	// Acquitement de l'écriture
+	wait(Wrapper_Console_Ready_InPort.default_event());
+
+	// Donnée output
+	Wrapper_Console_Data_OutPort.write( data );
+
+	// Indique qu'il n'y a pas de donnée valide
+	Wrapper_Console_Enable_OutPort.write( false );
+
+	wait(Wrapper_Console_Ready_InPort.default_event());
 }

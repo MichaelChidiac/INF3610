@@ -54,7 +54,7 @@ class processor: public sc_module
 		sc_port<LMBIF>			InstPort;
 		sc_port<LMBIF>			DataPort;
 		sc_out<unsigned int>	Processor_Data_OutPort;
-		sc_in<unsigned int>		Processor_Data_InPort;
+		sc_in<unsigned int>	Processor_Data_InPort;
 		sc_out<unsigned int>	Processor_Address_OutPort;
 		sc_out<bool>			Processor_Enable_OutPort;
 		sc_in<bool>				Processor_Ready_InPort;

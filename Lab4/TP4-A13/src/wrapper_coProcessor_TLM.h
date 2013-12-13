@@ -21,11 +21,11 @@ class wrapper_coProcessor_TLM : public sc_module
 {
 public:
     // Ports
-	sc_in<unsigned int>			Wrapper_CoProcessor_Data_InPort;
-	sc_out<unsigned int>		Wrapper_CoProcessor_Data_OutPort;
-	sc_out<bool>				Wrapper_CoProcessor_Enable_OutPort;
-	sc_in<bool>					Wrapper_CoProcessor_Ready_InPort;
-	sc_out<bool>				Wrapper_CoProcessor_RW_OutPort;
+	sc_in<unsigned int>		Wrapper_CoProcessor_Data_InPort;
+	sc_out<unsigned int>	Wrapper_CoProcessor_Data_OutPort;
+	sc_out<bool>			Wrapper_CoProcessor_Enable_OutPort;
+	sc_in<bool>				Wrapper_CoProcessor_Ready_InPort;
+	sc_out<bool>			Wrapper_CoProcessor_RW_OutPort;
 	
 	// TLM-2 socket
 	tlm_utils::simple_target_socket<wrapper_coProcessor_TLM> socket;

@@ -16,7 +16,7 @@ wrapper_coProcessor_TLM::wrapper_coProcessor_TLM(sc_module_name zName, unsigned 
 	//Assigne les variables
 	m_ulStartAdress = ulStartAdress;
 	m_ulEndAdress = ulEndAdress;
-	
+
 	// Register callback for incoming b_transport interface method call
     socket.register_b_transport(this, &wrapper_coProcessor_TLM::b_transport);
 }
@@ -72,29 +72,61 @@ void wrapper_coProcessor_TLM::b_transport( transaction_type& trans, sc_time& del
 ///////////////////////////////////////////////////////////////////////////////
 void wrapper_coProcessor_TLM::busLT_slave_read(sc_dt::uint64 add, unsigned char* ptrData, unsigned int len)
 {
-	unsigned int data ;
-	
-	/*
-		À compléter
-	*/
-	
+	unsigned int data;
+
+	// On indique que la transaction est une lecture 
+	Wrapper_CoProcessor_RW_OutPort.write( true ); 
+ 
+	// L'adresse du CoProcesseur
+	Wrapper_CoProcessor_Data_OutPort.write( add );
+
+	// On indique que la donnée est prête 
+	Wrapper_CoProcessor_Enable_OutPort.write( true ); 
+ 
+	// Indique qu'il n'y a pas de donnée valide
+	wait(Wrapper_CoProcessor_Ready_InPort.default_event());
+
+	Wrapper_CoProcessor_Enable_OutPort.write( false );
+
+	// Lecture pour envoyer sur le bus
+	data = Wrapper_CoProcessor_Data_InPort.read(); 
+
+	// La lecteur a été effectué
+	wait(Wrapper_CoProcessor_Ready_InPort.default_event());
+ 
 	memcpy(ptrData, &data, len);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	opb_slave_write
+//	busLT_slave_write
 //
 ///////////////////////////////////////////////////////////////////////////////
 void wrapper_coProcessor_TLM::busLT_slave_write(sc_dt::uint64 add, unsigned char* ptrData, unsigned int     len)
 {
-	unsigned int data ;
+	unsigned int data;
 	memcpy(&data, ptrData, len);
 
-	/*
-		À compléter
-	*/
+	// Demande d'écriture
+	Wrapper_CoProcessor_RW_OutPort.write( false );
+
+	// L'addresse du CoProcesseur
+	Wrapper_CoProcessor_Data_OutPort.write( add );
+
+	// Donnée valide
+	Wrapper_CoProcessor_Enable_OutPort.write( true );
+
+	// Acquitement de la réception
+	wait(Wrapper_CoProcessor_Ready_InPort.default_event());
+
+	Wrapper_CoProcessor_Enable_OutPort.write( false );
+
+	// Donnée à écrire
+	Wrapper_CoProcessor_Data_OutPort.write( data );
+
+	// Inique qu'il n'y a plus de donnée valide
+	wait(Wrapper_CoProcessor_Ready_InPort.default_event());
 }
 
 

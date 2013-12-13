@@ -21,7 +21,7 @@ class wrapper_processor_TLM : public sc_module
 {
 public:
     // Variable
-	sc_in_clk				ClockPort;
+    sc_in_clk				ClockPort;
 	sc_in<unsigned int>		Wrapper_Data_InPort;
 	sc_out<unsigned int>	Wrapper_Data_OutPort;
 	sc_in<unsigned int> 	Wrapper_Address_InPort;
